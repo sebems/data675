@@ -16,6 +16,7 @@ st.markdown(
         <style>
             button[kind="secondary"] > div > p {
                 font-size:100px !important;
+                color: #66CC00;
             }
             button[kind="secondary"] {
                 height:200px;
