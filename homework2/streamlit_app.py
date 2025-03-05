@@ -105,6 +105,9 @@ def main():
     """Main function to run the Tic-Tac-Toe game interface."""
     st.title("Tic-Tac-Toe with OpenAI")
 
+    AI_WIN_CNT = 0
+    PLYR_WIN_CNT = 0
+
     # Initialize board state if not present
     if "board" not in st.session_state:
         reset_game()
@@ -135,7 +138,10 @@ def main():
     if st.session_state.winner:
         st.success(f"{st.session_state.winner} wins!")
         if st.session_state.winner == "X":
+            PLYR_WIN_CNT += 1
             st.balloons()
+        else:
+            AI_WIN_CNT += 1
     elif all(cell != "" for row in st.session_state.board for cell in row):
         st.info("It's a draw!")
 
@@ -143,6 +149,7 @@ def main():
     if st.button("Restart Game", type="primary"):
         reset_game()
 
+    st.metrics("PLAYER WINS", PLYR_WIN_CNT)
 # Run the application
 if __name__ == "__main__":
     main()
