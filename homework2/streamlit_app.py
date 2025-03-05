@@ -149,7 +149,7 @@ def main():
     if st.button("Restart Game", type="primary"):
         reset_game()
 
-    st.metrics("PLAYER WINS", PLYR_WIN_CNT)
+    st.metric("PLAYER WINS", PLYR_WIN_CNT)
 # Run the application
 if __name__ == "__main__":
     main()
