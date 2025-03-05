@@ -1,19 +1,11 @@
 import streamlit as st
-import openai
-import toml
-
-# Load API key from Streamlit Secrets
-openai.api_key = st.secrets["OPENAI_API_KEY"]
 
 # Configure Streamlit page settings
 st.set_page_config(
-    page_title="OpenAI Tic-Tac-Toe",
+    page_title="Minimax Tic-Tac-Toe",
     page_icon="🎮",
     layout="wide"
 )
-
-# Sidebar instance for additional UI elements
-SIDEBAR = st.sidebar
 
 # Apply custom CSS styles for button appearance
 st.markdown(
@@ -45,47 +37,51 @@ def check_winner(board):
         return board[0][2]  # Opposite diagonal match
     return None
 
-def board_to_string(board):
-    """Convert the board into a string format for AI processing."""
-    return "\n".join([" | ".join(row) for row in board])
+def minimax(board, depth, is_maximizing):
+    """Minimax algorithm for optimal AI move."""
+    winner = check_winner(board)
+    if winner == "O":
+        return 10 - depth
+    if winner == "X":
+        return depth - 10
+    if all(cell != "" for row in board for cell in row):
+        return 0
+
+    if is_maximizing:
+        best_score = -float("inf")
+        for i in range(3):
+            for j in range(3):
+                if board[i][j] == "":
+                    board[i][j] = "O"
+                    score = minimax(board, depth + 1, False)
+                    board[i][j] = ""
+                    best_score = max(best_score, score)
+        return best_score
+    else:
+        best_score = float("inf")
+        for i in range(3):
+            for j in range(3):
+                if board[i][j] == "":
+                    board[i][j] = "X"
+                    score = minimax(board, depth + 1, True)
+                    board[i][j] = ""
+                    best_score = min(best_score, score)
+        return best_score
 
 def get_ai_move(board):
-    """Query OpenAI's API for an optimal Tic-Tac-Toe move."""
-    prompt = f"""
-    You are an expert Tic-Tac-Toe player. Your goal is to always make the best possible move.
-    
-    - You play as 'O'.
-    - Always check for a winning move and play it.
-    - If no winning move, block the opponent's winning move.
-    - Otherwise, prioritize center, then corners, then sides.
-    - Only choose empty spaces.
-    
-    Here is the current board state:
-    {board_to_string(board)}
-    
-    Respond only with a tuple (row, col), nothing else.
-    """
-
-    response = openai.chat.completions.create(
-        model="gpt-4o-mini",
-        messages=[{"role": "system", "content": "You are an expert Tic-Tac-Toe player."},
-                  {"role": "user", "content": prompt}],
-        temperature=0  # Ensures optimal deterministic responses
-    )
-
-    move = response.choices[0].message.content.strip()
-    ai_move = eval(move) if move else None
-
-    # Ensure the AI selects a valid move
-    if ai_move and board[ai_move[0]][ai_move[1]] == "":
-        return ai_move
-
-    # If AI provides an invalid move, select the first available space
+    """Find the best move using Minimax."""
+    best_score = -float("inf")
+    best_move = None
     for i in range(3):
         for j in range(3):
             if board[i][j] == "":
-                return (i, j)
-    return None
+                board[i][j] = "O"
+                score = minimax(board, 0, False)
+                board[i][j] = ""
+                if score > best_score:
+                    best_score = score
+                    best_move = (i, j)
+    return best_move
 
 def reset_game():
     """Reset the game board and turn state."""
@@ -96,7 +92,7 @@ def reset_game():
 
 def main():
     """Main function to run the Tic-Tac-Toe game interface."""
-    st.title("Tic-Tac-Toe with OpenAI")
+    st.title("Tic-Tac-Toe with Minimax AI")
 
     # Initialize board state if not present
     if "board" not in st.session_state:
@@ -127,8 +123,6 @@ def main():
     # Display game results
     if st.session_state.winner:
         st.success(f"{st.session_state.winner} wins!")
-        if st.session_state.winner == "X":
-            st.balloons()
     elif all(cell != "" for row in st.session_state.board for cell in row):
         st.info("It's a draw!")
 
