@@ -16,7 +16,7 @@ openai.api_key = st.secrets["OPENAI_API_KEY"]
 st.set_page_config(
     page_title="OpenAI Tic-Tac-Toe",
     page_icon="🎮",
-    layout="wide")
+    layout="wide"
 )
 
 # Sidebar instance for additional UI elements
