@@ -88,7 +88,7 @@ def reset_game():
     st.rerun()
 
 def main():
-    st.title("Tic-Tac-Toe with Minimax AI")
+    st.title("Tic-Tac-Toe with Minimax")
 
     if "board" not in st.session_state:
         reset_game()
